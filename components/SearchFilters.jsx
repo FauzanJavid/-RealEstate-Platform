@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Flex, Select, Box, Text, Input, Spinner, Icon, Button } from '@chakra-ui/react';
+import { Flex, Select, Box, Text, Input, Spinner, Icon, Button, useColorModeValue } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { MdCancel } from 'react-icons/md';
 import Image from 'next/image';
@@ -44,73 +44,206 @@ export default function SearchFilters() {
     }
   }, [searchTerm]);
 
+  const bg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.900', 'white');
+  const subtextColor = useColorModeValue('gray.600', 'gray.300');
+  const inputBg = useColorModeValue('white', 'gray.700');
+  const selectBg = useColorModeValue('white', 'gray.700');
+  
   return (
-    <Flex bg='gray.100' p='4' justifyContent='center' flexWrap='wrap'>
-      {filters?.map((filter) => (
-        <Box key={filter.queryName}>
-          <Select onChange={(e) => searchProperties({ [filter.queryName]: e.target.value })} placeholder={filter.placeholder} w='fit-content' p='2' >
-            {filter?.items?.map((item) => (
-              <option value={item.value} key={item.value}>
-                {item.name}
-              </option>
-            ))}
-          </Select>
-        </Box>
-      ))}
-      <Flex flexDir='column'>
-        <Button onClick={() => setShowLocations(!showLocations)} border='1px' borderColor='gray.200' marginTop='2' >
-          Search Location
-        </Button>
-        {showLocations && (
-          <Flex flexDir='column' pos='relative' paddingTop='2'>
-            <Input
-              placeholder='Type Here'
-              value={searchTerm}
-              w='300px'
-              focusBorderColor='gray.300'
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm !== '' && (
-              <Icon
-                as={MdCancel}
-                pos='absolute'
-                cursor='pointer'
-                right='5'
-                top='5'
-                zIndex='100'
-                onClick={() => setSearchTerm('')}
-              />
-            )}
-            {loading && <Spinner margin='auto' marginTop='3' />}
-            {showLocations && (
-              <Box height='300px' overflow='auto'>
-                {locationData?.map((location) => (
-                  <Box
-                    key={location.id}
-                    onClick={() => {
-                      searchProperties({ locationExternalIDs: location.externalID });
-                      setShowLocations(false);
-                      setSearchTerm(location.name);
-                    }}
-                  >
-                    <Text cursor='pointer' bg='gray.200' p='2' borderBottom='1px' borderColor='gray.100' >
-                      {location.name}
-                    </Text>
-                  </Box>
-                ))}
-                {!loading && !locationData?.length && (
-                  <Flex justifyContent='center' alignItems='center' flexDir='column' marginTop='5' marginBottom='5' >
-                    <Image src={noresult} />
-                    <Text fontSize='xl' marginTop='3'>
-                      Waiting to search!
-                    </Text>
-                  </Flex>
-                )}
-              </Box>
-            )}
-          </Flex>
-        )}
+    <Box 
+      bg={bg}
+      border='1px'
+      borderColor={borderColor}
+      p='6'
+    >
+      <Flex 
+        justifyContent='center' 
+        flexWrap='wrap' 
+        gap='4'
+        mb='4'
+      >
+        {filters?.map((filter) => (
+          <Box key={filter.queryName}>
+            <Text 
+              fontSize='sm' 
+              fontWeight='bold' 
+              color={subtextColor} 
+              mb='2'
+              textTransform='uppercase'
+              letterSpacing='wide'
+            >
+              {filter.placeholder}
+            </Text>
+            <Select 
+              onChange={(e) => searchProperties({ [filter.queryName]: e.target.value })} 
+              placeholder={`Choose ${filter.placeholder}`}
+              bg={selectBg}
+              borderColor={borderColor}
+              color={textColor}
+              _hover={{ borderColor: useColorModeValue('gray.400', 'purple.400') }}
+              _focus={{ 
+                borderColor: useColorModeValue('gray.500', 'purple.400'), 
+                boxShadow: useColorModeValue('0 0 0 1px rgba(0, 0, 0, 0.1)', '0 0 0 1px rgba(139, 92, 246, 0.6)') 
+              }}
+              borderRadius='lg'
+              minW='200px'
+            >
+              {filter?.items?.map((item) => (
+                <option value={item.value} key={item.value} style={{ background: useColorModeValue('#FFFFFF', '#2D3748').toString(), color: useColorModeValue('#1A202C', 'white').toString() }}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+          </Box>
+        ))}
       </Flex>
-    </Flex>
+      
+      {/* Location Search Section */}
+      <Flex justify='center'>
+        <Flex flexDir='column' align='center'>
+          <Text 
+            fontSize='sm' 
+            fontWeight='bold' 
+            color={subtextColor} 
+            mb='3'
+            textTransform='uppercase'
+            letterSpacing='wide'
+          >
+            Location Search
+          </Text>
+          <Button 
+            onClick={() => setShowLocations(!showLocations)} 
+            bg={useColorModeValue('gray.900', 'white')}
+            color={useColorModeValue('white', 'gray.900')}
+            border='none'
+            borderRadius='lg'
+            px='6'
+            py='3'
+            fontWeight='bold'
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            transition='all 0.3s ease'
+            leftIcon={showLocations ? <MdCancel /> : undefined}
+          >
+            {showLocations ? 'Close Location Search' : 'Search by Location'}
+          </Button>
+          
+          {showLocations && (
+            <Flex flexDir='column' pos='relative' mt='4' w='full' maxW='400px'>
+              <Input
+                placeholder='Type location name...'
+                value={searchTerm}
+                bg={inputBg}
+                borderColor={borderColor}
+                color={textColor}
+                _placeholder={{ color: subtextColor }}
+                _hover={{ borderColor: useColorModeValue('gray.400', 'purple.400') }}
+                _focus={{ 
+                  borderColor: useColorModeValue('gray.500', 'purple.400'), 
+                  boxShadow: useColorModeValue('0 0 0 1px rgba(0, 0, 0, 0.1)', '0 0 0 1px rgba(139, 92, 246, 0.6)') 
+                }}
+                borderRadius='lg'
+                fontSize='md'
+                p='4'
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm !== '' && (
+                <Icon
+                  as={MdCancel}
+                  pos='absolute'
+                  cursor='pointer'
+                  right='4'
+                  top='4'
+                  zIndex='100'
+                  color={subtextColor}
+                  _hover={{ color: 'red.400' }}
+                  onClick={() => setSearchTerm('')}
+                />
+              )}
+              
+              {loading && (
+                <Flex justify='center' mt='4'>
+                  <Spinner color={useColorModeValue('gray.600', 'purple.400')} size='lg' />
+                </Flex>
+              )}
+              
+              {showLocations && searchTerm && (
+                <Box 
+                  mt='2'
+                  maxHeight='300px' 
+                  overflow='auto'
+                  bg={bg}
+                  borderRadius='lg'
+                  border='1px'
+                  borderColor={borderColor}
+                  boxShadow='lg'
+                >
+                  {locationData?.map((location) => (
+                    <Box
+                      key={location.id}
+                      onClick={() => {
+                        searchProperties({ locationExternalIDs: location.externalID });
+                        setShowLocations(false);
+                        setSearchTerm(location.name);
+                      }}
+                      cursor='pointer'
+                      p='3'
+                      borderBottom='1px'
+                      borderColor={borderColor}
+                      _hover={{ 
+                        bg: useColorModeValue('gray.50', 'gray.700'), 
+                        color: useColorModeValue('gray.900', 'purple.300') 
+                      }}
+                      transition='all 0.2s'
+                    >
+                      <Text color={textColor}>
+                        📍 {location.name}
+                      </Text>
+                    </Box>
+                  ))}
+                  
+                  {!loading && !locationData?.length && searchTerm && (
+                    <Flex 
+                      justify='center' 
+                      align='center' 
+                      flexDir='column' 
+                      py='8'
+                      color={subtextColor}
+                    >
+                      <Box mb='4'>
+                        <Image src={noresult} width={80} height={80} />
+                      </Box>
+                      <Text fontSize='md' fontWeight='bold' mb='1' color={textColor}>
+                        No locations found
+                      </Text>
+                      <Text fontSize='sm' textAlign='center'>
+                        Try a different search term
+                      </Text>
+                    </Flex>
+                  )}
+                  
+                  {!searchTerm && (
+                    <Flex 
+                      justify='center' 
+                      align='center' 
+                      py='6'
+                      color={subtextColor}
+                    >
+                      <Text fontSize='md'>
+                        Start typing to search locations...
+                      </Text>
+                    </Flex>
+                  )}
+                </Box>
+              )}
+            </Flex>
+          )}
+        </Flex>
+      </Flex>
+    </Box>
   );
 }
