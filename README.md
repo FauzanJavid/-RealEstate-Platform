@@ -2,7 +2,7 @@
 
 A modern, feature-rich real estate platform built with **Next.js** and **Chakra UI**, offering seamless property search and discovery experience with beautiful light/dark mode support.
 
-![Real Estate Platform](https://i.ibb.co/jTW4bFC/image.png)
+
 
 ## ✨ Features
 
